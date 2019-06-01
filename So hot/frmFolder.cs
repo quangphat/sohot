@@ -1,4 +1,5 @@
-﻿using ModernUI.Forms;
+﻿using Dapper;
+using ModernUI.Forms;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,7 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Dapper;
 namespace So_hot
 {
     public partial class frmFolder : MetroForm
@@ -29,7 +29,7 @@ namespace So_hot
                 return;
             if(db!=null)
             {
-                List<Info> lstInfo;
+                List<Info> lstInfo=null;
                 lstInfo = db.Query<Info>("select * from tblInfo").ToList();
                 if (lstInfo == null)
                     lstInfo = new List<Info>();
@@ -53,7 +53,7 @@ namespace So_hot
                 if (info.Id > 0)
                 {
                     string edit = string.Format("update tblInfo set Path = @Path where Id =@Id");
-                    db.Execute(edit, info);
+                   db.Execute(edit, info);
                 }
                 else
                 {
