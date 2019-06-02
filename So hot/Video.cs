@@ -34,7 +34,7 @@ namespace So_hot
             {
                 var lstFileInfo = task.Result;
                 if (lstFileInfo != null)
-                    lstFile.Concat(lstFileInfo);
+                    lstFile = lstFile.Concat(lstFileInfo).ToList();
             }
             return lstFile;
         }

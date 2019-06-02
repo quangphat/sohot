@@ -389,22 +389,49 @@ namespace So_hot
             frmcreate.Show();
         }
         // thêm ảnh từ imagelist vào listview.
+        private  List<ListViewItem> createListViewItem(List<Movies> movies)
+        {
+            if (movies == null)
+                return null;
+            List<ListViewItem> lstItem = new List<ListViewItem>();
+            for (int i = 0; i < movies.Count; i++)
+            {
+              
+                var mv = movies[i];
+                ListViewItem item = new ListViewItem();
+                item.ImageIndex = i;
+                item.Text = mv.Name;
+                item.Tag = mv.FullPath;
+                lstItem.Add(item);
+            }
+            return lstItem;
+        }
         private async Task addtoListView(ImageList imglist, List<Movies> movies)
         {
             lstViewContent.Items.Clear();
             lstViewContent.View = View.LargeIcon;
             lstViewContent.LargeImageList = imglist;
-            await Task.Run(()=> {
-                for (int i=0;i<movies.Count;i++)
-                {
-                    var mv = movies[i];
-                    ListViewItem item = new ListViewItem();
-                    item.ImageIndex = i;
-                    item.Text = mv.Name;
-                    item.Tag = mv.FullPath;
+            var lstItem = createListViewItem(movies);
+            var tasks = new List<Task>();
+            foreach(var item in lstItem)
+            {
+                //tasks.Add(Task.Run(() =>
+                //{
                     lstViewContent.Items.Add(item);
-                }
-            });
+                
+            }
+            //await Task.WhenAll(tasks);
+            //await Task.Run(()=> {
+            //    for (int i=0;i<movies.Count;i++)
+            //    {
+            //        var mv = movies[i];
+            //        ListViewItem item = new ListViewItem();
+            //        item.ImageIndex = i;
+            //        item.Text = mv.Name;
+            //        item.Tag = mv.FullPath;
+            //        lstViewContent.Items.Add(item);
+            //    }
+            //});
             
             label1.Text = movies.Count.ToString() + " phim";
         }
