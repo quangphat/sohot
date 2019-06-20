@@ -17,7 +17,7 @@ namespace So_hot.Repository
         }
         public async Task<List<tblLink>> GetLinkList( bool isRealData)
         {
-            if (connection == null || connection.State == ConnectionState.Closed)
+            if (connection == null)
                 return null;
             string select = string.Empty;
             if(isRealData)

@@ -39,5 +39,20 @@ namespace So_hot.Repository
                 return null;
             return result.ToList();
         }
+        public async Task<List<Movies>> GetByFullPath(string fullPath)
+        {
+            string select = $"select * from Movies where FullPath = '{fullPath}'";
+            var result = await connection.QueryAsync<Movies>(select);
+            if (result == null)
+                return null;
+            return result.ToList();
+        }
+        public async Task<bool> DeleteAllMovie()
+        {
+            if (!UserManagement.UserSession.Type)
+                return false;
+            await connection.ExecuteAsync("delete from Movies");
+            return true;
+        }
     }
 }

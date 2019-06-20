@@ -158,10 +158,12 @@ namespace So_hot
             TabPage tab = materialTabControl1.SelectedTab;
             if (tab.Text == "Link")
             {
-                if (string.IsNullOrEmpty(metroTextBox1.Text))
-                    return;
                 string search = metroTextBox1.Text.Trim();
-                var links = await rpLink.Search(search, UserManagement.UserSession.Type);
+                var links = null as List<tblLink>;
+                if (string.IsNullOrEmpty(search) || string.IsNullOrWhiteSpace(search))
+                    links = await rpLink.GetLinkList(UserManagement.UserSession.Type);
+                else
+                    links = await rpLink.Search(search, UserManagement.UserSession.Type);
                 await LoadData(links);
             }
             else
@@ -271,23 +273,16 @@ namespace So_hot
         private async Task LoadImg()
         {
             if (UserManagement.UserSession.Type == false) return;
-            List<Movies> allMovies = new List<Movies>();
-            List<Movies> movies = new List<Movies>();
             IEnumerable<Movies> lstMovie = new List<Movies>();
-            try
-            {
-                lstMovie = await rpMovie.GetAllMovie();
-                allMovies = lstMovie != null ? lstMovie.ToList() : new List<Movies>();
-            }
-            catch (Exception ex)
-            {
-
-            }
             ImageList imgList, imgListAll;
-            List<string> validFolders = await getFolderContainMovies();
-            if (validFolders == null) return;
+            
             if (cbResetData.Checked)
             {
+                List<string> validFolders = await getFolderContainMovies();
+                if (validFolders == null) return;
+                bool isDelete = await rpMovie.DeleteAllMovie();
+                if (isDelete == false)
+                    return;
                 List<Movies> lstBase64 = await Video.createPreviewFolder(validFolders);
                 if (lstBase64 != null && lstBase64.Any())
                 {
@@ -297,8 +292,8 @@ namespace So_hot
                         var insertTasks = new List<Task>();
                         foreach (Movies mv in lstBase64)
                         {
-                            var exist = allMovies.Where(p => p.FullPath == mv.FullPath).FirstOrDefault();
-                            if (exist == null)
+                            var exist = await rpMovie.GetByFullPath(mv.FullPath);
+                            if (exist == null || !exist.Any())
                                 insertTasks.Add(rpMovie.Insert(mv));
                         }
                         await Task.WhenAll(insertTasks);
@@ -307,8 +302,9 @@ namespace So_hot
                     {
                     }
                 }
+                var temps = lstBase64.Where(p => p.FullPath.Contains("358"));
             }
-
+            
             imgList = new ImageList();
             imgListAll = new ImageList();
 
@@ -317,32 +313,16 @@ namespace So_hot
             var query = metroTextBox1.Text != null ? metroTextBox1.Text.Trim() : string.Empty;
             if (string.IsNullOrWhiteSpace(query))
             {
-                if (allMovies == null || !allMovies.Any())
-                {
-                    lstMovie = await rpMovie.GetAllMovie();
-                    allMovies = lstMovie != null ? lstMovie.ToList() : new List<Movies>();
-                   
-                }
-                movies = allMovies;
+                lstMovie = await rpMovie.GetAllMovie();
             }
             else
             {
-                if (allMovies != null && allMovies.Any())
-                {
-                    moviesBySearch = allMovies.Where(p => p.Name.Contains(query)).ToList();
-                }
-                else
-                {
-                    lstMovie = await rpMovie.Search(query);
-                    moviesBySearch = lstMovie != null ? lstMovie.ToList() : new List<Movies>();
-
-                }
-                movies = moviesBySearch;
+                lstMovie = await rpMovie.Search(query);
             }
 
-            if (movies != null)
+            if (lstMovie != null)
             {
-                foreach (var mv in movies)
+                foreach (var mv in lstMovie)
                 {
 
                     try
@@ -358,7 +338,7 @@ namespace So_hot
                     }
 
                 }
-                await addtoListView(imgList, movies);
+                await addtoListView(imgList, lstMovie.ToList());
             }
             cbResetData.Checked = false;
             await deleteFolder();
