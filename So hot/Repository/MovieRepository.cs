@@ -24,16 +24,16 @@ namespace So_hot.Repository
         }
         public async Task DeleteByFullPath(string fullPath)
         {
-            await connection.ExecuteAsync($"delete from Movies where FullPath = '{fullPath}'" );
+            await connection.ExecuteAsync($"delete from Movies where FullPath = \"{fullPath}\"" );
         }
         public async Task Insert(Movies mv)
         {
-            string update = $"insert into Movies(Name,FullPath,Image) values('{mv.Name}','{mv.FullPath}','{mv.Image}')";
+            string update = $"insert into Movies(Name,FullPath,Image) values(\"{mv.Name}\",\"{mv.FullPath}\",\"{mv.Image}\")";
             await connection.ExecuteAsync(update);
         }
         public async Task<List<Movies>> Search(string query)
         {
-            string select = $"select * from Movies where Name like '%{query}%'";
+            string select = $"select * from Movies where Name like \"%{query}%\"";
             var result = await connection.QueryAsync<Movies>(select);
             if (result == null)
                 return null;
@@ -41,7 +41,7 @@ namespace So_hot.Repository
         }
         public async Task<List<Movies>> GetByFullPath(string fullPath)
         {
-            string select = $"select * from Movies where FullPath = '{fullPath}'";
+            string select = $"select * from Movies where FullPath = \"{fullPath}\"";
             var result = await connection.QueryAsync<Movies>(select);
             if (result == null)
                 return null;

@@ -275,7 +275,7 @@ namespace So_hot
             if (UserManagement.UserSession.Type == false) return;
             IEnumerable<Movies> lstMovie = new List<Movies>();
             ImageList imgList, imgListAll;
-            
+            List<Movies> lstExists = new List<Movies>();
             if (cbResetData.Checked)
             {
                 List<string> validFolders = await getFolderContainMovies();
@@ -287,20 +287,23 @@ namespace So_hot
                 if (lstBase64 != null && lstBase64.Any())
                 {
                     
-                    try
-                    {
+                   
                         var insertTasks = new List<Task>();
                         foreach (Movies mv in lstBase64)
                         {
+                        if(mv.Name.ToLower().Contains("sakura miura"))
+                        {
+                            string s = mv.Name;
+                        }
                             var exist = await rpMovie.GetByFullPath(mv.FullPath);
                             if (exist == null || !exist.Any())
                                 insertTasks.Add(rpMovie.Insert(mv));
+                            else
+                                lstExists.Add(mv);
                         }
                         await Task.WhenAll(insertTasks);
-                    }
-                    catch
-                    {
-                    }
+                    
+                   
                 }
                 var temps = lstBase64.Where(p => p.FullPath.Contains("358"));
             }
